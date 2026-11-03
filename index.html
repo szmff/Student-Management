@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة وتحليل نتائج الطلاب | معاهد الدلتا لنظم المعلومات الإدارية</title>
+  
+  <!-- Favicon: Delta Institutes logo -->
+  <link rel="icon" type="image/png" href="assets/delta-institutes-logo.png">
+  
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-wrapper">
+          <img class="brand-logo" src="assets/delta-institutes-logo.png" alt="شعار معاهد الدلتا لنظم المعلومات الإدارية">
+          <div class="brand-text">
+            <span class="brand-title">معاهد الدلتا</span>
+            <span class="brand-subtitle">لنظم المعلومات الإدارية</span>
+          </div>
+        </div>
+        <button class="sidebar-toggle-btn no-print" id="sidebar-toggle-btn" title="طي القائمة الجانبية">
+          <i data-lucide="panel-right-close"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <span class="nav-section-title">القوائم الرئيسية</span>
+        
+        <button class="nav-item active" data-view="dashboard">
+          <span class="nav-icon"><i data-lucide="layout-dashboard"></i></span>
+          <span class="nav-label">لوحة التحكم</span>
+        </button>
+
+        <button class="nav-item" data-view="students">
+          <span class="nav-icon"><i data-lucide="users"></i></span>
+          <span class="nav-label">جميع الطلاب</span>
+          <span class="nav-badge badge-teal" id="sidebar-student-count">0</span>
+        </button>
+
+        <button class="nav-item" data-view="analytics">
+          <span class="nav-icon"><i data-lucide="bar-chart-3"></i></span>
+          <span class="nav-label">التحليل الأكاديمي</span>
+        </button>
+
+        <button class="nav-item" data-view="grace">
+          <span class="nav-icon"><i data-lucide="award"></i></span>
+          <span class="nav-label">لجنة الرأفة</span>
+          <span class="nav-badge badge-warning" id="sidebar-grace-count">0</span>
+        </button>
+
+        <span class="nav-section-title">الإدارة والتقارير</span>
+
+        <button class="nav-item" data-view="reports">
+          <span class="nav-icon"><i data-lucide="file-text"></i></span>
+          <span class="nav-label">التقارير والطباعة</span>
+        </button>
+
+        <button class="nav-item" data-view="settings">
+          <span class="nav-icon"><i data-lucide="settings"></i></span>
+          <span class="nav-label">الإعدادات واللائحة</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-card">
+          <div class="status-dot"></div>
+          <div class="system-status-info">
+            <span class="system-status-title">النظام متصل ونشط</span>
+            <span class="system-status-desc">الفصل الدراسي الأول 2026/2027</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Top Sticky Header -->
+      <header class="top-header no-print">
+        <div class="header-right-zone">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="فتح القائمة">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="page-title-box">
+            <h1 class="page-title" id="page-current-title">لوحة التحكم الأكاديمية</h1>
+            <div class="page-breadcrumb">
+              <span>الرئيسية</span>
+              <i data-lucide="chevron-left" style="width: 14px; height: 14px;"></i>
+              <span id="page-breadcrumb-sub">نظرة عامة على النتائج</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-left-zone">
+          <!-- Global Search -->
+          <div class="header-search">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="global-search-input" class="search-input" placeholder="بحث باسم الطالب أو رقم الجلوس...">
+          </div>
+
+          <!-- Academic Term Pill -->
+          <div class="academic-term-pill">
+            <i data-lucide="calendar" style="width: 16px; height: 16px;"></i>
+            <span>خريف 2026 - الفصل 1</span>
+          </div>
+
+          <!-- Theme Toggle Button -->
+          <button class="action-icon-btn" id="theme-toggle-btn" title="تبديل الوضع الليلي / النهاري">
+            <i data-lucide="moon" id="theme-icon"></i>
+          </button>
+
+          <!-- User Profile -->
+          <div class="user-profile-badge" title="ملف المستخدم">
+            <div class="user-avatar">د.ع</div>
+            <div class="user-meta">
+              <span class="user-name">................................</span>
+              <span class="user-role">عميد شؤون الطلاب والكنترول</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Views Wrapper -->
+      <div class="content-body">
+        
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD (لوحة التحكم) -->
+        <!-- ========================================== -->
+        <section id="view-dashboard" class="view-section active-view">
+          
+          <!-- KPI Stats Grid -->
+          <div class="stats-grid">
+            
+            <div class="stat-card card-primary">
+              <div class="stat-top">
+                <span class="stat-label">إجمالي الطلاب المسجلين</span>
+                <div class="stat-icon-wrapper">
+                  <i data-lucide="users"></i>
+                </div>
+              </div>
+              <div class="stat-middle">
+                <span class="stat-number" id="stat-total-students">0</span>
+                <span class="stat-unit">طالب</span>
+              </div>
+              <div class="stat-footer">
+                <span class="stat-trend trend-positive">
+                  <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+                  <span>بيانات مكتملة</span>
+                </span>
+                <span>سجل الكلية العام</span>
+              </div>
+            </div>
+
+            <div class="stat-card card-success">
+              <div class="stat-top">
+                <span class="stat-label">الطلاب الناجحون</span>
+                <div class="stat-icon-wrapper">
+                  <i data-lucide="check-circle-2"></i>
+                </div>
+              </div>
+              <div class="stat-middle">
+                <span class="stat-number" id="stat-passed-students">0</span>
+                <span class="stat-unit">طالب</span>
+              </div>
+              <div class="stat-footer">
+                <span class="stat-trend trend-positive" id="stat-pass-rate">0%</span>
+                <span>نسبة النجاح العامة</span>
+              </div>
+            </div>
+
+            <div class="stat-card card-warning">
+              <div class="stat-top">
+                <span class="stat-label">يحتاجون مراجعة</span>
+                <div class="stat-icon-wrapper">
+                  <i data-lucide="alert-triangle"></i>
+                </div>
+              </div>
+              <div class="stat-middle">
+                <span class="stat-number" id="stat-review-students">0</span>
+                <span class="stat-unit">طالب</span>
+              </div>
+              <div class="stat-footer">
+                <span class="stat-trend trend-neutral">رأفة / تدقيق غياب</span>
+                <span>حالات معلقة</span>
+              </div>
+            </div>
+
+            <div class="stat-card card-danger">
+              <div class="stat-top">
+                <span class="stat-label">الطلاب المتعثرون (راسب)</span>
+                <div class="stat-icon-wrapper">
+                  <i data-lucide="x-circle"></i>
+                </div>
+              </div>
+              <div class="stat-middle">
+                <span class="stat-number" id="stat-failed-students">0</span>
+                <span class="stat-unit">طالب</span>
+              </div>
+              <div class="stat-footer">
+                <span class="stat-trend trend-negative" id="stat-fail-rate">0%</span>
+                <span>فرص إعادة الاختبار</span>
+              </div>
+            </div>
+
+            <div class="stat-card card-teal">
+              <div class="stat-top">
+                <span class="stat-label">المتوسط العام للدرجات</span>
+                <div class="stat-icon-wrapper">
+                  <i data-lucide="trending-up"></i>
+                </div>
+              </div>
+              <div class="stat-middle">
+                <span class="stat-number" id="stat-overall-average">0.00</span>
+                <span class="stat-unit">/ 100</span>
+              </div>
+              <div class="stat-footer">
+                <span class="stat-trend trend-positive">محسوب بدقة</span>
+                <span>متوسط كل المواد</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Grace Committee Banner Alert -->
+          <div class="grace-committee-banner">
+            <div class="grace-banner-content">
+              <div class="grace-banner-icon">
+                <i data-lucide="scale"></i>
+              </div>
+              <div class="grace-banner-text">
+                <h3>لجنة الرأفة والدعم الأكاديمي جاهزة للمراجعة</h3>
+                <p>يوجد حالياً <strong id="grace-alert-count">0</strong> طالب تتراوح متوسطاتهم بين 40 و49.99 درجة ومؤهلين للحصول على درجات الرأفة النظامية (+5 درجات).</p>
+              </div>
+            </div>
+            <div class="grace-banner-actions">
+              <button class="btn btn-teal" id="btn-goto-grace">
+                <i data-lucide="external-link"></i>
+                <span>فحص لجنة الرأفة الآن</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Charts Overview -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">توزيع التقديرات العامة للطلاب</h3>
+                  <p class="chart-subtitle">توزيع الطلاب حسب سلم التقديرات A - F</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="quickGradesChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">مؤشر الحالة الأكاديمية ونسب النجاح</h3>
+                  <p class="chart-subtitle">مقارنة أعداد الطلاب الناجحين والمراجعين والمتعثرين</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="quickResultsChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Students Table Preview -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon-badge">
+                  <i data-lucide="clock"></i>
+                </div>
+                <div>
+                  <h2 class="panel-title">أحدث نتائج الطلاب المسجلة</h2>
+                  <p class="panel-subtitle">عرض مختصر للطلاب المسجلين مع إمكانية الوصول السريع</p>
+                </div>
+              </div>
+              <div class="panel-actions">
+                <button class="btn btn-primary btn-sm" id="btn-quick-add-student">
+                  <i data-lucide="user-plus"></i>
+                  <span>إضافة طالب جديد</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btn-goto-all-students">
+                  <span>عرض الكل</span>
+                  <i data-lucide="arrow-left"></i>
+                </button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="custom-table" id="dashboard-recent-table">
+                <thead>
+                  <tr>
+                    <th>رقم الجلوس</th>
+                    <th>اسم الطالب</th>
+                    <th>المواد (برمجة / هياكل / قواعد)</th>
+                    <th>المتوسط</th>
+                    <th>التقدير</th>
+                    <th>نسبة الحضور</th>
+                    <th>النتيجة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-recent-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: ALL STUDENTS (جميع الطلاب) -->
+        <!-- ========================================== -->
+        <section id="view-students" class="view-section">
+          
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon-badge">
+                  <i data-lucide="users"></i>
+                </div>
+                <div>
+                  <h2 class="panel-title">سجل نتائج وبيانات الطلاب</h2>
+                  <p class="panel-subtitle">إدارة وتصفية درجات الطلاب والتحقق من حالاتهم الأكاديمية</p>
+                </div>
+              </div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" id="btn-open-add-student-modal">
+                  <i data-lucide="user-plus"></i>
+                  <span>إضافة طالب جديد</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-export-csv-students">
+                  <i data-lucide="file-spreadsheet"></i>
+                  <span>تصدير CSV</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-print-students">
+                  <i data-lucide="printer"></i>
+                  <span>طباعة الكشف</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Filter Toolbar -->
+            <div class="table-toolbar">
+              <div class="toolbar-search">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="table-search-input" class="search-input" placeholder="بحث بالاسم أو رقم الجلوس...">
+              </div>
+
+              <div class="toolbar-filters">
+                <!-- Result Filter -->
+                <select id="filter-result-select" class="select-control">
+                  <option value="ALL">جميع النتائج (الكل)</option>
+                  <option value="ناجح">ناجح فقط</option>
+                  <option value="يحتاج مراجعة">يحتاج مراجعة فقط</option>
+                  <option value="راسب">راسب فقط</option>
+                  <option value="معفى بقرار رسمي">معفى بقرار رسمي</option>
+                  <option value="محروم">محروم</option>
+                  <option value="مؤجل">مؤجل</option>
+                  <option value="منسحب">منسحب</option>
+                </select>
+
+                <!-- Grade Filter -->
+                <select id="filter-grade-select" class="select-control">
+                  <option value="ALL">جميع التقديرات</option>
+                  <option value="A">تقدير ممتاز (A)</option>
+                  <option value="B">تقدير جيد جداً (B)</option>
+                  <option value="C">تقدير جيد (C)</option>
+                  <option value="D">تقدير مقبول (D)</option>
+                  <option value="E">تقدير ضعيف (E)</option>
+                  <option value="F">تقدير راسب (F)</option>
+                </select>
+
+                <!-- Sort Filter -->
+                <select id="sort-average-select" class="select-control">
+                  <option value="DEFAULT">الترتيب: الافتراضي</option>
+                  <option value="AVG_DESC">المتوسط: من الأعلى للأدنى ↓</option>
+                  <option value="AVG_ASC">المتوسط: من الأدنى للأعلى ↑</option>
+                  <option value="NAME_ASC">الاسم: أ - ي</option>
+                </select>
+
+                <!-- Reset Filters -->
+                <button class="btn btn-secondary btn-sm" id="btn-reset-filters" title="إعادة تعيين الفلاتر">
+                  <i data-lucide="rotate-ccw"></i>
+                  <span>إعادة ضبط</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Main Students Table -->
+            <div class="table-container">
+              <table class="custom-table" id="main-students-table">
+                <thead>
+                  <tr>
+                    <th>رقم الجلوس</th>
+                    <th>اسم الطالب</th>
+                    <th>درجات المواد الثلاث</th>
+                    <th>المتوسط الحسابي</th>
+                    <th>التقدير</th>
+                    <th>نسبة الحضور</th>
+                    <th>النتيجة النهائية</th>
+                    <th style="text-align: center;">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="main-students-tbody">
+                  <!-- Populated dynamically by JS -->
+                </tbody>
+              </table>
+              <div id="table-empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                  <i data-lucide="search-x"></i>
+                </div>
+                <h4 class="empty-title">لا توجد نتائج مطابقة</h4>
+                <p class="empty-desc">لم نعثر على أي طالب يتطابق مع معايير البحث أو التصفية الحالية.</p>
+                <button class="btn btn-secondary btn-sm" id="btn-empty-clear">مسح معايير البحث</button>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: ACADEMIC ANALYSIS (التحليل الأكاديمي) -->
+        <!-- ========================================== -->
+        <section id="view-analytics" class="view-section">
+          
+          <!-- Key Academic Metrics -->
+          <div class="insights-row">
+            <div class="insight-pill-card">
+              <div class="insight-icon-box" style="background: var(--primary-light); color: var(--primary);">
+                <i data-lucide="award"></i>
+              </div>
+              <div class="insight-data">
+                <span class="insight-val" id="analytics-excellence-rate">0%</span>
+                <span class="insight-lbl">نسبة التفوق (امتياز A وجيد جداً B)</span>
+              </div>
+            </div>
+
+            <div class="insight-pill-card">
+              <div class="insight-icon-box" style="background: var(--success-light); color: var(--success);">
+                <i data-lucide="check-check"></i>
+              </div>
+              <div class="insight-data">
+                <span class="insight-val" id="analytics-pass-rate">0%</span>
+                <span class="insight-lbl">نسبة النجاح النظامية</span>
+              </div>
+            </div>
+
+            <div class="insight-pill-card">
+              <div class="insight-icon-box" style="background: var(--teal-light); color: var(--teal);">
+                <i data-lucide="shield-check"></i>
+              </div>
+              <div class="insight-data">
+                <span class="insight-val" id="analytics-attendance-avg">0%</span>
+                <span class="insight-lbl">متوسط نسبة الحضور العام</span>
+              </div>
+            </div>
+
+            <div class="insight-pill-card">
+              <div class="insight-icon-box" style="background: var(--warning-light); color: var(--warning);">
+                <i data-lucide="life-buoy"></i>
+              </div>
+              <div class="insight-data">
+                <span class="insight-val" id="analytics-grace-promoted-pct">0%</span>
+                <span class="insight-lbl">نسبة الإنقاذ المحتملة بالرأفة</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Grid (4 Dedicated Analytical Charts) -->
+          <div class="charts-grid">
+            
+            <!-- Chart 1: Grade Distribution -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">1. توزيع الطلاب حسب التقديرات الأكاديمية (A - F)</h3>
+                  <p class="chart-subtitle">رسم بياني يوضح عدد الطلاب في كل فئة تقدير</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="chartGradesDistribution"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Final Results Distribution -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">2. مقارنة الناجحين بالطلاب الذين يحتاجون مراجعة والمتعثرين</h3>
+                  <p class="chart-subtitle">توزيع النسب المئوية للحالات الأكاديمية الثلاث</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="chartResultsBreakdown"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: Student Averages Distribution -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">3. توزيع متوسطات الطلاب ونسب الحضور</h3>
+                  <p class="chart-subtitle">مقارنة بصرية بين متوسط الدرجات ونسبة حضور كل طالب</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="chartAveragesScores"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Before vs After Grace Marks -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div>
+                  <h3 class="chart-title">4. مقارنة أداء الطلاب قبل وبعد درجات الرأفة (+5)</h3>
+                  <p class="chart-subtitle">أثر درجات الدعم على رفع معدل الطلاب المتعثرين المؤهلين للرأفة</p>
+                </div>
+              </div>
+              <div class="chart-canvas-wrapper">
+                <canvas id="chartGraceImpact"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: GRACE COMMITTEE (لجنة الرأفة) -->
+        <!-- ========================================== -->
+        <section id="view-grace" class="view-section">
+          
+          <!-- Grace Rules Info Card -->
+          <div class="panel-card" style="border-right: 4px solid var(--teal);">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon-badge" style="background: var(--teal-light); color: var(--teal);">
+                  <i data-lucide="scale"></i>
+                </div>
+                <div>
+                  <h2 class="panel-title">نظام وضوابط لجنة الرأفة الأكاديمية</h2>
+                  <p class="panel-subtitle">معالجة درجات الدعم للطلاب المتعثرين الواقعين في النطاق الحرج (40 - 49.99 درجة)</p>
+                </div>
+              </div>
+              <div class="panel-actions">
+                <span class="status-pill status-passed">درجات الدعم المقررة: +5 درجات للمتوسط</span>
+              </div>
+            </div>
+            <div style="padding: 1.25rem 1.5rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7;">
+              وفقاً للمادة (34) من اللائحة الأكاديمية المعتمدة بالمعهد، يُحال إلى لجنة الرأفة الطلاب الذين يتراوح متوسط درجاتهم الكلية بين 
+              <strong style="color: var(--teal);">40.00 و 49.99 درجة</strong>. تُمنح اللجنة دفعة درجات دعم إضافية مقدارها 
+              <strong>(+5 درجات)</strong> لمعالجة المتوسط، بشرط ألا تقل نسبة حضور الطالب عن <strong>75%</strong> لاعتماد ترقيته للنجاح.
+              <br>
+              <em style="color: var(--text-muted); font-size: 0.85rem;">ملاحظة هامة: الحسابات البرمجية للرأفة تحافظ على الدرجات الأصلية دون تعديل دائم، وتُعالج البيانات عبر دوال filter و map و reduce المستقلة.</em>
+            </div>
+          </div>
+
+          <!-- Grace Committee Dynamic Stats -->
+          <div class="grace-stats-summary">
+            
+            <div class="grace-stat-box">
+              <div class="grace-stat-icon">
+                <i data-lucide="user-check"></i>
+              </div>
+              <div class="grace-stat-details">
+                <span class="grace-stat-val" id="grace-stat-eligible-count">0</span>
+                <span class="grace-stat-lbl">الطلاب المستحقون للرأفة (40-49)</span>
+              </div>
+            </div>
+
+            <div class="grace-stat-box">
+              <div class="grace-stat-icon" style="background: var(--primary-light); color: var(--primary);">
+                <i data-lucide="plus-circle"></i>
+              </div>
+              <div class="grace-stat-details">
+                <span class="grace-stat-val">+5</span>
+                <span class="grace-stat-lbl">درجات الدعم المضافة لكل طالب</span>
+              </div>
+            </div>
+
+            <div class="grace-stat-box">
+              <div class="grace-stat-icon" style="background: var(--warning-light); color: var(--warning);">
+                <i data-lucide="clock"></i>
+              </div>
+              <div class="grace-stat-details">
+                <span class="grace-stat-val" id="grace-stat-orig-avg">0.00</span>
+                <span class="grace-stat-lbl">متوسط المتعثرين قبل الرأفة</span>
+              </div>
+            </div>
+
+            <div class="grace-stat-box">
+              <div class="grace-stat-icon" style="background: var(--success-light); color: var(--success);">
+                <i data-lucide="trending-up"></i>
+              </div>
+              <div class="grace-stat-details">
+                <span class="grace-stat-val" id="grace-stat-new-avg">0.00</span>
+                <span class="grace-stat-lbl">المتوسط العام للمتعثرين بعد الرأفة (reduce)</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Grace Committee Before/After Comparison Cards -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon-badge">
+                  <i data-lucide="git-compare"></i>
+                </div>
+                <div>
+                  <h3 class="panel-title">جدول المقارنة الأكاديمية: قبل وبعد تطبيق الرأفة</h3>
+                  <p class="panel-subtitle">مؤشر بصري دقيق يوضح انتقال الطالب ونتيجته النهائية بعد معالجة الدرجات</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style="padding: 1.5rem;" id="grace-cards-container">
+              <!-- Populated dynamically via map() in JS -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: REPORTS & PRINT (التقارير والطباعة) -->
+        <!-- ========================================== -->
+        <section id="view-reports" class="view-section">
+          
+          <div class="report-view-container">
+            
+            <!-- Official University Header -->
+            <div class="official-report-header">
+              <div class="official-logo-box">
+                <div class="official-emblem">
+                  <img src="assets/delta-institutes-logo.png" alt="شعار معاهد الدلتا لنظم المعلومات الإدارية">
+                </div>
+                <div class="official-titles">
+                  <h2>معاهد الدلتا لنظم المعلومات الإدارية</h2>
+                  <p>إدارة شؤون الطلاب والكنترول والامتحانات</p>
+                  <p style="font-weight: 700; color: var(--primary);">كشف النتائج الرسمية المعتمدة للعام الجامعي 2026 / 2027</p>
+                </div>
+              </div>
+
+              <div class="official-meta">
+                <div><strong>تاريخ استخراج التقرير:</strong> <span id="report-date-str">--/--/----</span></div>
+                <div><strong>رقم الوثيقة الأكاديمية:</strong> <span style="font-family: monospace;">يُستكمل بمعرفة الإدارة</span></div>
+                <div><strong>الفصل الدراسي:</strong> الفصل الأول (خريف)</div>
+              </div>
+            </div>
+
+            <!-- Report Action Buttons (Hidden on Print) -->
+            <div class="panel-actions no-print" style="margin-bottom: 1.5rem; justify-content: flex-end;">
+              <button class="btn btn-primary" onclick="window.print()">
+                <i data-lucide="printer"></i>
+                <span>طباعة التقرير الرسمي</span>
+              </button>
+              <button class="btn btn-teal" id="btn-export-csv-reports">
+                <i data-lucide="download"></i>
+                <span>تحميل كملف CSV</span>
+              </button>
+            </div>
+
+            <!-- Tabular Report View -->
+            <div class="table-container">
+              <table class="custom-table" id="official-report-table">
+                <thead>
+                  <tr>
+                    <th>م</th>
+                    <th>رقم الجلوس</th>
+                    <th>اسم الطالب الرباعي</th>
+                    <th>برمجة الحاسوب</th>
+                    <th>هياكل البيانات</th>
+                    <th>قواعد البيانات</th>
+                    <th>المتوسط</th>
+                    <th>التقدير</th>
+                    <th>نسبة الحضور</th>
+                    <th>الحالة الأكاديمية</th>
+                    <th>ملاحظات / رقم القرار</th>
+                  </tr>
+                </thead>
+                <tbody id="official-report-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Official Signatures Box -->
+            <div class="official-signature-grid">
+              <div>
+                <div class="sig-title">عضو لجنة الرصد والمراجعة</div>
+                <div class="sig-line">................................</div>
+              </div>
+              <div>
+                <div class="sig-title">رئيس لجنة الكنترول المركزي</div>
+                <div class="sig-line">................................</div>
+              </div>
+              <div>
+                <div class="sig-title">اعتماد إدارة المعهد</div>
+                <div class="sig-line">................................</div>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- VIEW 6: SETTINGS & POLICIES (الإعدادات) -->
+        <!-- ========================================== -->
+        <section id="view-settings" class="view-section">
+          
+          <div class="settings-section-card">
+            <h3 class="settings-card-title">سلم الدرجات والتقديرات الأكاديمية المعمول به</h3>
+            <p class="settings-card-desc">توزيع النسب المئوية للدرجات وفقاً لنظام الساعات المعتمدة المعتمد بالمعهد</p>
+            
+            <table class="grading-scale-table">
+              <thead>
+                <tr>
+                  <th>التقدير اللاتيني</th>
+                  <th>المسمى بالعربية</th>
+                  <th>المدى المئوي للدرجة</th>
+                  <th>الوزن النقدي (GPA)</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="grade-badge grade-A">A</span></td>
+                  <td><strong>ممتاز</strong></td>
+                  <td>90% فما فوق (90.00 - 100.00)</td>
+                  <td>4.00</td>
+                  <td><span class="status-pill status-passed">ناجح بامتياز</span></td>
+                </tr>
+                <tr>
+                  <td><span class="grade-badge grade-B">B</span></td>
+                  <td><strong>جيد جداً</strong></td>
+                  <td>80% إلى أقل من 90% (80.00 - 89.99)</td>
+                  <td>3.00</td>
+                  <td><span class="status-pill status-passed">ناجح</span></td>
+                </tr>
+                <tr>
+                  <td><span class="grade-badge grade-C">C</span></td>
+                  <td><strong>جيد</strong></td>
+                  <td>70% إلى أقل من 80% (70.00 - 79.99)</td>
+                  <td>2.00</td>
+                  <td><span class="status-pill status-passed">ناجح</span></td>
+                </tr>
+                <tr>
+                  <td><span class="grade-badge grade-D">D</span></td>
+                  <td><strong>مقبول</strong></td>
+                  <td>60% إلى أقل من 70% (60.00 - 69.99)</td>
+                  <td>1.00</td>
+                  <td><span class="status-pill status-passed">ناجح بالحد الأدنى</span></td>
+                </tr>
+                <tr>
+                  <td><span class="grade-badge grade-E">E</span></td>
+                  <td><strong>ضعيف</strong></td>
+                  <td>50% إلى أقل من 60% (50.00 - 59.99)</td>
+                  <td>0.50</td>
+                  <td><span class="status-pill status-passed">ناجح بالحد الأدنى</span></td>
+                </tr>
+                <tr>
+                  <td><span class="grade-badge grade-F">F</span></td>
+                  <td><strong>راسب</strong></td>
+                  <td>أقل من 50% (دون الحد الأدنى للنجاح)</td>
+                  <td>0.00</td>
+                  <td><span class="status-pill status-failed">راسب / إعادة اختبار</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Danger Zone: Reset Sample Data -->
+          <div class="settings-section-card" style="border-color: var(--danger-border);">
+            <h3 class="settings-card-title" style="color: var(--danger);">إدارة بيانات النظام واستعادة البيانات التجريبية</h3>
+            <p class="settings-card-desc">يمكنك استعادة بيانات الطلاب التجريبية الأصلية المعتمدة للتكليف (تتضمن طلاباً في فئة الرأفة 40-49 للاختبار) أو مسح كافة البيانات المسجلة.</p>
+            
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary" id="btn-reset-demo-data">
+                <i data-lucide="rotate-ccw"></i>
+                <span>استعادة البيانات التجريبية الأصلية</span>
+              </button>
+              <button class="btn btn-danger" id="btn-clear-all-data">
+                <i data-lucide="trash-2"></i>
+                <span>مسح كافة السجلات الحالية</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODALS -->
+  <!-- ========================================== -->
+
+  <!-- Modal 1: Add / Edit Student -->
+  <div class="modal-backdrop" id="modal-student-form">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="modal-title-icon" id="modal-icon-badge">
+            <i data-lucide="user-plus"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modal-student-title">إضافة طالب جديد</h3>
+            <p class="panel-subtitle">أدخل البيانات الأكاديمية والدرجات للمواد الثلاث</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="modal-student-close-btn" aria-label="إغلاق">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="student-form">
+        <div class="modal-body">
+          <input type="hidden" id="form-edit-index" value="-1">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="form-seat-number">رقم الجلوس *</label>
+              <input type="text" id="form-seat-number" class="form-control" placeholder="مثال: 1009" required>
+              <span class="form-error" id="error-seat-number">رقم الجلوس موجود مسبقاً أو غير صحيح</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-name">اسم الطالب الرباعي *</label>
+              <input type="text" id="form-name" class="form-control" placeholder="مثال: خالد محمد عبد العزيز" required>
+              <span class="form-error" id="error-name">يرجى إدخال اسم الطالب كاملاً</span>
+            </div>
+          </div>
+
+          <label class="form-label">درجات المواد الدراسية الثلاث (من 0 إلى 100) *</label>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-hint" for="form-score-1">برمجة الحاسوب</label>
+              <input type="number" id="form-score-1" class="form-control" min="0" max="100" placeholder="0 - 100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-hint" for="form-score-2">هياكل البيانات</label>
+              <input type="number" id="form-score-2" class="form-control" min="0" max="100" placeholder="0 - 100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-hint" for="form-score-3">قواعد البيانات</label>
+              <input type="number" id="form-score-3" class="form-control" min="0" max="100" placeholder="0 - 100" required>
+            </div>
+          </div>
+          <span class="form-error" id="error-scores">يجب أن تكون الدرجات بين 0 و 100</span>
+
+          <div class="form-group">
+            <label class="form-label" for="form-attendance">نسبة الحضور (%) *</label>
+            <input type="number" id="form-attendance" class="form-control" min="0" max="100" placeholder="مثال: 85" required>
+            <span class="form-hint">الحد الأدنى المطلوب لتفادي مراجعة الغياب هو 75%</span>
+            <span class="form-error" id="error-attendance">نسبة الحضور يجب أن تكون بين 0 و 100</span>
+          </div>
+
+          <div class="form-row academic-extra-fields">
+            <div class="form-group">
+              <label class="form-label" for="form-academic-status">الحالة الأكاديمية</label>
+              <select id="form-academic-status" class="form-control">
+                <option value="normal">حساب تلقائي حسب الدرجات والحضور</option>
+                <option value="exempt">معفى بقرار رسمي</option>
+                <option value="suspended">محروم من دخول الامتحان</option>
+                <option value="deferred">مؤجل / غير مكتمل</option>
+                <option value="withdrawn">منسحب</option>
+              </select>
+              <span class="form-hint">اختر حالة استثنائية فقط عند وجود قرار موثق.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-academic-note">ملاحظات / رقم القرار</label>
+              <input type="text" id="form-academic-note" class="form-control" maxlength="180" placeholder="مثال: قرار إعفاء رقم 125">
+              <span class="form-hint">اختياري، لتوثيق سبب الإعفاء أو التأجيل أو الحرمان.</span>
+            </div>
+          </div>
+
+          <!-- Live Preview Box -->
+          <div class="live-preview-box">
+            <div class="preview-stat">
+              <span class="preview-lbl">المتوسط المحسوب</span>
+              <span class="preview-val" id="form-preview-avg">0.00</span>
+            </div>
+            <div class="preview-stat">
+              <span class="preview-lbl">التقدير المتوقع</span>
+              <span class="preview-val" id="form-preview-grade">-</span>
+            </div>
+            <div class="preview-stat">
+              <span class="preview-lbl">النتيجة المتوقعة</span>
+              <span class="preview-val" id="form-preview-result">-</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modal-student-cancel-btn">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="modal-student-submit-btn">
+            <i data-lucide="check"></i>
+            <span>حفظ بيانات الطالب</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Student Details Academic Card -->
+  <div class="modal-backdrop" id="modal-student-details">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="modal-title-icon">
+            <i data-lucide="id-card"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">الملف الأكاديمي للطالب</h3>
+            <p class="panel-subtitle">تفاصيل الدرجات وسجل الحضور والتقييم النهائي</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="modal-details-close-btn" aria-label="إغلاق">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-details-content">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-details-close-btn2">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Confirmation Dialog -->
+  <div class="modal-backdrop" id="modal-confirm">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="modal-title-icon" style="background: var(--danger-light); color: var(--danger);">
+            <i data-lucide="alert-triangle"></i>
+          </div>
+          <h3 class="modal-title" id="confirm-modal-title">تأكيد الإجراء</h3>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-modal-message" style="color: var(--text-secondary); font-size: 0.95rem;">هل أنت متأكد من تنفيذ هذا الإجراء؟</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="confirm-modal-cancel">إلغاء</button>
+        <button type="button" class="btn btn-danger" id="confirm-modal-ok">تأكيد المتابعة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
